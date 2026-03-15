@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MGEF - Gestion des États Financiers OHADA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        /* Variables */
+        :root {
+            --primary: #1e3c72;
+            --secondary: #2a5298;
+            --accent: #00b4d8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --gray: #64748b;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* Page de connexion */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 32px;
+            padding: 48px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 24px;
+        }
+
+        .login-header h1 {
+            color: var(--dark);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: none;
+            min-height: 100vh;
+            background: #f0f2f5;
+        }
+
+        .dashboard.active {
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding-bottom: 24px;
+            border-bottom: 2px solid #f1f5f9;
+            margin-bottom: 24px;
+        }
+
+        .sidebar-header h2 {
+            color: var(--dark);
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .user-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+        }
+
+        .user-badge h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .user-badge p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .menu {
+            flex: 1;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-item:hover {
+            background: #f1f5f9;
+            color: var(--dark);
+        }
+
+        .menu-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .menu-item .icon {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        .btn-logout {
+            padding: 14px 16px;
+            background: #fee2e2;
+            color: var(--danger);
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-logout:hover {
+            background: #fecaca;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .content-header h2 {
+            color: var(--dark);
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .stat-card h3 {
+            color: var(--gray);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            color: var(--dark);
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        /* Tables */
+        .table-container {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-header h3 {
+            color: var(--dark);
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px 12px;
+            background: #f8fafc;
+            color: var(--gray);
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-radius: 12px 12px 0 0;
+        }
+
+        td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--dark);
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-action {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-regler {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-valider {
+            background: var(--warning);
+            color: white;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 32px;
+            padding: 40px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h3 {
+            color: var(--dark);
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .close {
+            font-size: 32px;
+            cursor: pointer;
+            color: var(--gray);
+            transition: color 0.2s;
+        }
+
+        .close:hover {
+            color: var(--dark);
+        }
+
+        .honoraires-preview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .honoraires-preview p {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .honoraires-preview .montant {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+            z-index: 2000;
+        }
+
+        .notification.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .notification.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .notification.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Landing Page */
+        .landing {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .landing::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 50%);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .landing-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            color: white;
+            padding: 40px;
+            max-width: 800px;
+        }
+
+        .landing h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .landing .subtitle {
+            font-size: 20px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .version {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-landing {
+            display: inline-block;
+            background: white;
+            color: #1e3c72;
+            text-decoration: none;
+            padding: 18px 50px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 18px;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-landing:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Landing Page -->
+    <div id="landing" class="landing">
+        <div class="landing-content">
+            <h1>GESTION DES ÉTATS FINANCIERS OHADA</h1>
+            <p class="subtitle">Application développée pour les états financiers SYCOHADA et SYCEBNL</p>
+            <div class="version">Version 4.01. MGEF</div>
+            <button onclick="showLogin()" class="btn-landing">ENTRER DANS L'APPLICATION →</button>
+        </div>
+    </div>
+
+    <!-- Login Page -->
+    <div id="login" class="login-container" style="display: none;">
+        <div class="login-card">
+            <div class="login-header">
+                <svg class="login-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                <h1>Connexion à MGEF</h1>
+                <p>Version professionnelle • Sécurisé</p>
+            </div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email professionnel</label>
+                    <input type="email" id="email" value="admin@expert.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <input type="password" id="password" value="Admin@2024" required>
+                </div>
+                <button type="submit" class="btn-primary">SE CONNECTER</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Admin -->
+    <div id="dashboardAdmin" class="dashboard">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>MGEF Admin</h2>
+                <p>Expert-Comptable</p>
+            </div>
+            <div class="user-badge" id="adminInfo">
+                <h3>Administrateur</h3>
+                <p>admin@expert.com</p>
+            </div>
+            <div class="menu">
+                <div class="menu-item active" onclick="showAdminView('dashboard')">
+                    <span class="icon">📊</span>
+                    <span>Tableau de bord</span>
+                </div>
+                <div class="menu-item" onclick="showAdminView('clients')">
+                    <span class="icon">📋</span>
+                    <span>Tous les clients</span>
+                </div>
+                <div class="menu-item" onclick="showAdminView('demandes')">
+                    <span class="icon">🔔</span>
+                    <span>Demandes de validation</span>
+                </div>
+                <div class="menu-item" onclick="showAdminView('users')">
+                    <span class="icon">👥</span>
+                    <span>Utilisateurs</span>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="logout()">
+                <span class="icon">🚪</span>
+                Déconnexion
+            </button>
+        </div>
+        
+        <div class="main-content" id="adminContent">
+            <!-- Contenu chargé dynamiquement -->
+        </div>
+    </div>
+
+    <!-- Dashboard User -->
+    <div id="dashboardUser" class="dashboard">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>MGEF Cabinet</h2>
+                <p>Espace utilisateur</p>
+            </div>
+            <div class="user-badge" id="userInfo">
+                <h3>Chargement...</h3>
+                <p>...</p>
+            </div>
+            <div class="menu">
+                <div class="menu-item active" onclick="showUserView('clients')">
+                    <span class="icon">📋</span>
+                    <span>Mes clients</span>
+                </div>
+                <div class="menu-item" onclick="showUserView('regles')">
+                    <span class="icon">✅</span>
+                    <span>Clients réglés</span>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="logout()">
+                <span class="icon">🚪</span>
+                Déconnexion
+            </button>
+        </div>
+        
+        <div class="main-content" id="userContent">
+            <!-- Contenu chargé dynamiquement -->
+        </div>
+    </div>
+
+    <!-- Modal Client -->
+    <div id="clientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nouveau client</h3>
+                <span class="close" onclick="closeModal('clientModal')">&times;</span>
+            </div>
+            <form onsubmit="createClient(event)">
+                <div class="form-group">
+                    <label>Nom du client *</label>
+                    <input type="text" id="clientNom" required>
+                </div>
+                <div class="form-group">
+                    <label>IFU</label>
+                    <input type="text" id="clientIfu">
+                </div>
+                <div class="form-group">
+                    <label>RCCM</label>
+                    <input type="text" id="clientRccm">
+                </div>
+                <div class="form-group">
+                    <label>Total bilan (F CFA) *</label>
+                    <input type="number" id="clientTotalBilan" required>
+                </div>
+                <div class="form-group">
+                    <label>Chiffre d'affaires (F CFA) *</label>
+                    <input type="number" id="clientCa" oninput="updateHonorairesPreview()" required>
+                </div>
+                <div class="form-group">
+                    <label>Année *</label>
+                    <input type="number" id="clientAnnee" value="2024" required>
+                </div>
+                
+                <div class="honoraires-preview" id="honorairesPreview">
+                    <p>Honoraires calculés</p>
+                    <div class="montant" id="honorairesMontant">0 F CFA</div>
+                </div>
+                
+                <button type="submit" class="btn-primary">INSCRIRE LE CLIENT</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Utilisateur -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nouvel utilisateur</h3>
+                <span class="close" onclick="closeModal('userModal')">&times;</span>
+            </div>
+            <form onsubmit="createUser(event)">
+                <div class="form-group">
+                    <label>Nom *</label>
+                    <input type="text" id="userNom" required>
+                </div>
+                <div class="form-group">
+                    <label>Prénoms *</label>
+                    <input type="text" id="userPrenom" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="userEmail" required>
+                </div>
+                <button type="submit" class="btn-primary">CRÉER L'UTILISATEUR</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notification" style="display: none;"></div>
+
+    <script>
+        // ==================== CONFIGURATION GOOGLE SHEETS ====================
+        // À remplacer par vos identifiants Google Sheets
+        const SHEET_CONFIG = {
+            apiKey: 'AIzaSyAJd62y8igLP_Gg7vcmpUzLVq6x8y6VcFY', // À obtenir depuis Google Cloud Console
+            sheetId: '1BdAr-Wdnp66ForogCMigvOXgB9mbByas4F6ovXYMzZ8', // L'ID de votre Google Sheet
+            usersRange: 'Utilisateurs!A:F',
+            clientsRange: 'Clients!A:L',
+            paiementsRange: 'Paiements!A:F'
+        };
+
+        // ==================== DONNÉES DE DÉMONSTRATION ====================
+        let currentUser = null;
+        
+        // Données initiales (seront remplacées par Google Sheets)
+        let users = [
+            { id: 1, nom: 'Admin', prenom: 'Expert', email: 'admin@expert.com', password: 'Admin@2024', role: 'admin' },
+            { id: 2, nom: 'Dupont', prenom: 'Jean', email: 'cabinet.dupont@email.com', password: 'User@2024', role: 'user' },
+            { id: 3, nom: 'Martin', prenom: 'Sophie', email: 'cabinet.martin@email.com', password: 'User@2024', role: 'user' }
+        ];
+
+        let clients = [
+            { id: 1, userId: 2, nom: 'ETABLISSEMENT ADO', ifu: 'IFU123456', rccm: 'RCCM001', totalBilan: 50000000, ca: 25000000, annee: 2023, honoraires: 50000, statut: 'actif', dateCreation: '2024-01-15' },
+            { id: 2, userId: 2, nom: 'SOCIETE ANONA', ifu: 'IFU789012', rccm: 'RCCM002', totalBilan: 150000000, ca: 80000000, annee: 2024, honoraires: 100000, statut: 'actif', dateCreation: '2024-01-20' },
+            { id: 3, userId: 3, nom: 'HOTEL PLAGE', ifu: 'IFU345678', rccm: 'RCCM003', totalBilan: 300000000, ca: 200000000, annee: 2023, honoraires: 150000, statut: 'actif', dateCreation: '2024-01-10' },
+            { id: 4, userId: 2, nom: 'ETABLISSEMENT ADO', ifu: 'IFU123456', rccm: 'RCCM001', totalBilan: 60000000, ca: 32000000, annee: 2024, honoraires: 50000, statut: 'regle', dateCreation: '2024-01-25' }
+        ];
+
+        let demandes = [];
+
+        // ==================== FONCTIONS MÉTIER ====================
+
+        function calculerHonoraires(ca) {
+            if (ca <= 10000000) return 40000;
+            if (ca <= 50000000) return 50000;
+            if (ca <= 150000000) return 100000;
+            if (ca <= 250000000) return 150000;
+            if (ca <= 350000000) return 200000;
+            if (ca <= 500000000) return 250000;
+            if (ca <= 750000000) return 300000;
+            if (ca <= 1000000000) return 400000;
+            return "À négocier";
+        }
+
+        function formatMontant(montant) {
+            if (typeof montant === 'string') return montant;
+            return new Intl.NumberFormat('fr-FR').format(montant) + ' F CFA';
+        }
+
+        function showNotification(message, type = 'success') {
+            const notif = document.getElementById('notification');
+            notif.style.display = 'flex';
+            notif.className = `notification ${type}`;
+            notif.innerHTML = `
+                <span>${type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '❌'}</span>
+                <span>${message}</span>
+            `;
+            setTimeout(() => {
+                notif.style.display = 'none';
+            }, 3000);
+        }
+
+       // ==================== FONCTIONS GOOGLE SHEETS RÉELLES ====================
+
+// Charger les données depuis Google Sheets
+async function loadFromGoogleSheets() {
+    try {
+        // Charger les utilisateurs
+        const usersUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_CONFIG.sheetId}/values/Utilisateurs?key=${SHEET_CONFIG.apiKey}`;
+        const usersResponse = await fetch(usersUrl);
+        const usersData = await usersResponse.json();
+        
+        if (usersData.values && usersData.values.length > 1) {
+            const headers = usersData.values[0];
+            users = usersData.values.slice(1).map((row, index) => ({
+                id: parseInt(row[0]) || index + 1,
+                nom: row[1] || '',
+                prenom: row[2] || '',
+                email: row[3] || '',
+                password: row[4] || '',
+                role: row[5] || 'user'
+            }));
+        }
+
+        // Charger les clients
+        const clientsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_CONFIG.sheetId}/values/Clients?key=${SHEET_CONFIG.apiKey}`;
+        const clientsResponse = await fetch(clientsUrl);
+        const clientsData = await clientsResponse.json();
+        
+        if (clientsData.values && clientsData.values.length > 1) {
+            clients = clientsData.values.slice(1).map((row, index) => ({
+                id: parseInt(row[0]) || index + 1,
+                userId: parseInt(row[1]) || 2,
+                nom: row[2] || '',
+                ifu: row[3] || '',
+                rccm: row[4] || '',
+                totalBilan: parseFloat(row[5]) || 0,
+                ca: parseFloat(row[6]) || 0,
+                annee: parseInt(row[7]) || 2024,
+                honoraires: row[8] ? (isNaN(row[8]) ? row[8] : parseFloat(row[8])) : 0,
+                statut: row[9] || 'actif',
+                dateCreation: row[10] || new Date().toISOString().split('T')[0]
+            }));
+        }
+
+        console.log('Données chargées avec succès');
+        return true;
+    } catch (error) {
+        console.error('Erreur de chargement:', error);
+        showNotification('Erreur de connexion à Google Sheets', 'error');
+        return false;
+    }
+}
+// Après avoir poussé dans le tableau clients
+const saved = await saveClientToSheet(nouveauClient);
+if (!saved) {
+    // Si la sauvegarde échoue, on retire le client du tableau
+    clients.pop();
+    return;
+}
+// Sauvegarder un nouveau client
+async function saveClientToSheet(client) {
+    try {
+        // Trouver le prochain ID disponible
+        const newId = clients.length + 1;
+        
+        // Préparer la ligne à ajouter
+        const values = [[
+            newId,
+            client.userId,
+            client.nom,
+            client.ifu || '',
+            client.rccm || '',
+            client.totalBilan,
+            client.ca,
+            client.annee,
+            client.honoraires,
+            client.statut,
+            client.dateCreation
+        ]];
+
+        // URL pour append (ajouter à la fin)
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_CONFIG.sheetId}/values/Clients:append?valueInputOption=USER_ENTERED&key=${SHEET_CONFIG.apiKey}`;
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                values: values
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Erreur de sauvegarde');
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Erreur de sauvegarde:', error);
+        showNotification('Erreur de sauvegarde dans Google Sheets', 'error');
+        return false;
+    }
+}
+        // ==================== GESTION DE L'INTERFACE ====================
+
+        function showLogin() {
+            document.getElementById('landing').style.display = 'none';
+            document.getElementById('login').style.display = 'flex';
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                if (user.role === 'admin') {
+                    document.getElementById('login').style.display = 'none';
+                    document.getElementById('dashboardAdmin').classList.add('active');
+                    loadAdminDashboard();
+                } else {
+                    document.getElementById('login').style.display = 'none';
+                    document.getElementById('dashboardUser').classList.add('active');
+                    document.getElementById('userInfo').innerHTML = `
+                        <h3>${user.prenom} ${user.nom}</h3>
+                        <p>${user.email}</p>
+                    `;
+                    loadUserDashboard();
+                }
+                showNotification(`Bienvenue ${user.prenom} ${user.nom}`);
+            } else {
+                showNotification('Email ou mot de passe incorrect', 'error');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('dashboardAdmin').classList.remove('active');
+            document.getElementById('dashboardUser').classList.remove('active');
+            document.getElementById('login').style.display = 'flex';
+        }
+
+        // ==================== FONCTIONS ADMIN ====================
+
+        function loadAdminDashboard() {
+            const content = document.getElementById('adminContent');
+            
+            // Statistiques
+            const stats = {
+                totalClients: clients.length,
+                clientsActifs: clients.filter(c => c.statut === 'actif').length,
+                clientsRegles: clients.filter(c => c.statut === 'regle').length,
+                demandesEnAttente: demandes.length,
+                totalUsers: users.filter(u => u.role === 'user').length
+            };
+
+            content.innerHTML = `
+                <div class="content-header">
+                    <h2>Tableau de bord administrateur</h2>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total clients</h3>
+                        <div class="value">${stats.totalClients}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Clients actifs</h3>
+                        <div class="value">${stats.clientsActifs}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Clients réglés</h3>
+                        <div class="value">${stats.clientsRegles}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Demandes en attente</h3>
+                        <div class="value">${stats.demandesEnAttente}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Utilisateurs</h3>
+                        <div class="value">${stats.totalUsers}</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Demandes de validation en attente</h3>
+                    </div>
+                    ${demandes.length === 0 ? 
+                        '<p style="text-align: center; color: var(--gray); padding: 40px;">Aucune demande en attente</p>' : 
+                        demandes.map(d => {
+                            const client = clients.find(c => c.id === d.clientId);
+                            const user = users.find(u => u.id === client.userId);
+                            return `
+                                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <strong style="font-size: 16px;">${client.nom}</strong>
+                                        <p style="color: var(--gray); font-size: 14px; margin-top: 4px;">
+                                            Cabinet: ${user.prenom} ${user.nom} | Montant: ${formatMontant(client.honoraires)}
+                                        </p>
+                                    </div>
+                                    <button onclick="validerPaiement(${client.id})" class="btn-action btn-valider">
+                                        Valider le paiement
+                                    </button>
+                                </div>
+                            `;
+                        }).join('')
+                    }
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Derniers clients inscrits</h3>
+                        <button class="btn-add" onclick="window.location.href='#'">
+                            <span>+</span> Voir tous
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th>Cabinet</th>
+                                <th>Année</th>
+                                <th>CA</th>
+                                <th>Honoraires</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${clients.slice(0, 5).map(client => {
+                                const user = users.find(u => u.id === client.userId);
+                                return `
+                                    <tr>
+                                        <td><strong>${client.nom}</strong></td>
+                                        <td>${user ? `${user.prenom} ${user.nom}` : 'Inconnu'}</td>
+                                        <td>${client.annee}</td>
+                                        <td>${formatMontant(client.ca)}</td>
+                                        <td>${formatMontant(client.honoraires)}</td>
+                                        <td><span class="badge ${client.statut === 'actif' ? 'badge-warning' : 'badge-success'}">${client.statut}</span></td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function showAdminView(view) {
+            const content = document.getElementById('adminContent');
+            
+            // Mettre à jour le menu actif
+            document.querySelectorAll('#dashboardAdmin .menu-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            if (view === 'dashboard') {
+                loadAdminDashboard();
+            } else if (view === 'clients') {
+                content.innerHTML = `
+                    <div class="content-header">
+                        <h2>Tous les clients</h2>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Client</th>
+                                    <th>Cabinet</th>
+                                    <th>Année</th>
+                                    <th>IFU</th>
+                                    <th>CA</th>
+                                    <th>Honoraires</th>
+                                    <th>Statut</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${clients.sort((a, b) => a.nom.localeCompare(b.nom)).map(client => {
+                                    const user = users.find(u => u.id === client.userId);
+                                    return `
+                                        <tr>
+                                            <td><strong>${client.nom}</strong></td>
+                                            <td>${user ? `${user.prenom} ${user.nom}` : 'Inconnu'}</td>
+                                            <td>${client.annee}</td>
+                                            <td>${client.ifu || '-'}</td>
+                                            <td>${formatMontant(client.ca)}</td>
+                                            <td>${formatMontant(client.honoraires)}</td>
+                                            <td><span class="badge ${client.statut === 'actif' ? 'badge-warning' : 'badge-success'}">${client.statut}</span></td>
+                                            <td>${client.dateCreation}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (view === 'demandes') {
+                content.innerHTML = `
+                    <div class="content-header">
+                        <h2>Demandes de validation</h2>
+                    </div>
+                    <div class="table-container">
+                        ${demandes.length === 0 ? 
+                            '<p style="text-align: center; color: var(--gray); padding: 60px;">Aucune demande en attente de validation</p>' : 
+                            demandes.map(d => {
+                                const client = clients.find(c => c.id === d.clientId);
+                                const user = users.find(u => u.id === client.userId);
+                                return `
+                                    <div style="background: #f8fafc; padding: 24px; border-radius: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <h4 style="font-size: 18px; margin-bottom: 8px;">${client.nom}</h4>
+                                            <p style="color: var(--gray);">
+                                                Cabinet: ${user.prenom} ${user.nom}<br>
+                                                Montant: ${formatMontant(client.honoraires)}<br>
+                                                Demande le: ${new Date(d.dateDemande).toLocaleDateString('fr-FR')}
+                                            </p>
+                                        </div>
+                                        <button onclick="validerPaiement(${client.id})" class="btn-action btn-valider" style="padding: 12px 24px;">
+                                            ✓ VALIDER LE PAIEMENT
+                                        </button>
+                                    </div>
+                                `;
+                            }).join('')
+                        }
+                    </div>
+                `;
+            } else if (view === 'users') {
+                content.innerHTML = `
+                    <div class="content-header">
+                        <h2>Gestion des utilisateurs</h2>
+                        <button class="btn-add" onclick="openModal('userModal')">
+                            <span>+</span> Nouvel utilisateur
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Prénoms</th>
+                                    <th>Email</th>
+                                    <th>Mot de passe</th>
+                                    <th>Clients</th>
+                                    <th>Date création</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${users.filter(u => u.role === 'user').map(user => {
+                                    const nbClients = clients.filter(c => c.userId === user.id).length;
+                                    return `
+                                        <tr>
+                                            <td><strong>${user.nom}</strong></td>
+                                            <td>${user.prenom}</td>
+                                            <td>${user.email}</td>
+                                            <td><code style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px;">${user.password}</code></td>
+                                            <td><span class="badge badge-success">${nbClients} clients</span></td>
+                                            <td>2024-01-15</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+        }
+
+        function validerPaiement(clientId) {
+            const client = clients.find(c => c.id === clientId);
+            if (client) {
+                client.statut = 'regle';
+                demandes = demandes.filter(d => d.clientId !== clientId);
+                showNotification(`Paiement validé pour ${client.nom}`);
+                loadAdminDashboard();
+            }
+        }
+
+        // ==================== FONCTIONS UTILISATEUR ====================
+
+        function loadUserDashboard() {
+            showUserView('clients');
+        }
+
+        function showUserView(view) {
+            const content = document.getElementById('userContent');
+            
+            // Mettre à jour le menu actif
+            document.querySelectorAll('#dashboardUser .menu-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            if (view === 'clients') {
+                const userClients = clients.filter(c => c.userId === currentUser.id && c.statut === 'actif');
+                
+                content.innerHTML = `
+                    <div class="content-header">
+                        <h2>Mes clients actifs</h2>
+                        <button class="btn-add" onclick="openModal('clientModal')">
+                            <span>+</span> Nouveau client
+                        </button>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Total clients</h3>
+                            <div class="value">${clients.filter(c => c.userId === currentUser.id).length}</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Clients actifs</h3>
+                            <div class="value">${userClients.length}</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Chiffre d'affaires total</h3>
+                            <div class="value">${formatMontant(clients.filter(c => c.userId === currentUser.id).reduce((sum, c) => sum + c.ca, 0))}</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Client</th>
+                                    <th>Année</th>
+                                    <th>IFU</th>
+                                    <th>CA</th>
+                                    <th>Honoraires</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${userClients.length === 0 ? 
+                                    '<tr><td colspan="6" style="text-align: center; padding: 60px;">Aucun client actif</td></tr>' : 
+                                    userClients.map(client => `
+                                        <tr>
+                                            <td><strong>${client.nom}</strong></td>
+                                            <td>${client.annee}</td>
+                                            <td>${client.ifu || '-'}</td>
+                                            <td>${formatMontant(client.ca)}</td>
+                                            <td>${formatMontant(client.honoraires)}</td>
+                                            <td>
+                                                <button onclick="demanderReglement(${client.id})" class="btn-action btn-regler">
+                                                    RÉGLER
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (view === 'regles') {
+                const clientsRegles = clients.filter(c => c.userId === currentUser.id && c.statut === 'regle');
+                
+                content.innerHTML = `
+                    <div class="content-header">
+                        <h2>Clients réglés</h2>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Client</th>
+                                    <th>Année</th>
+                                    <th>CA</th>
+                                    <th>Honoraires</th>
+                                    <th>Date règlement</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${clientsRegles.length === 0 ?
+                                    '<tr><td colspan="5" style="text-align: center; padding: 60px;">Aucun client réglé</td></tr>' :
+                                    clientsRegles.map(client => `
+                                        <tr>
+                                            <td><strong>${client.nom}</strong></td>
+                                            <td>${client.annee}</td>
+                                            <td>${formatMontant(client.ca)}</td>
+                                            <td>${formatMontant(client.honoraires)}</td>
+                                            <td>${client.dateCreation || '2024-01-25'}</td>
+                                        </tr>
+                                    `).join('')
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+        }
+
+        function demanderReglement(clientId) {
+            const client = clients.find(c => c.id === clientId);
+            if (client) {
+                demandes.push({
+                    clientId: clientId,
+                    dateDemande: new Date().toISOString()
+                });
+                showNotification(`Demande de règlement envoyée pour ${client.nom}`, 'warning');
+            }
+        }
+
+        function createClient(event) {
+            event.preventDefault();
+            
+            const ca = parseFloat(document.getElementById('clientCa').value);
+            
+            const nouveauClient = {
+                id: clients.length + 1,
+                userId: currentUser.id,
+                nom: document.getElementById('clientNom').value.toUpperCase(),
+                ifu: document.getElementById('clientIfu').value,
+                rccm: document.getElementById('clientRccm').value,
+                totalBilan: parseFloat(document.getElementById('clientTotalBilan').value),
+                ca: ca,
+                annee: parseInt(document.getElementById('clientAnnee').value),
+                honoraires: calculerHonoraires(ca),
+                statut: 'actif',
+                dateCreation: new Date().toISOString().split('T')[0]
+            };
+            
+            clients.push(nouveauClient);
+            closeModal('clientModal');
+            showNotification(`Client ${nouveauClient.nom} inscrit avec succès`);
+            loadUserDashboard();
+        }
+
+        function createUser(event) {
+            event.preventDefault();
+            
+            const password = 'User@' + Math.floor(Math.random() * 10000);
+            
+            const nouvelUser = {
+                id: users.length + 1,
+                nom: document.getElementById('userNom').value,
+                prenom: document.getElementById('userPrenom').value,
+                email: document.getElementById('userEmail').value,
+                password: password,
+                role: 'user'
+            };
+            
+            users.push(nouvelUser);
+            closeModal('userModal');
+            showNotification(`Utilisateur créé avec succès. Mot de passe: ${password}`);
+            showAdminView('users');
+        }
+
+        function updateHonorairesPreview() {
+            const ca = parseFloat(document.getElementById('clientCa').value) || 0;
+            const montant = calculerHonoraires(ca);
+            document.getElementById('honorairesMontant').textContent = formatMontant(montant);
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Initialisation
+        window.onload = function() {
+            // En production, ici on chargerait les données depuis Google Sheets
+            console.log('MGEF Application chargée');
+        };
+    </script>
+</body>
+</html>
